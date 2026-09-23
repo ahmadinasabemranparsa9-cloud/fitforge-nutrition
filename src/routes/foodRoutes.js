@@ -15,6 +15,6 @@ router.get("/filters", getFoodFiltersHandler);
 
 router.get("/count", getFoodCountHandler);
 
-router.get("/:fdcid", getFoodByFdcIdHandler);
+router.get("/:fdcId", getFoodByFdcIdHandler);
 
 module.exports = router;
