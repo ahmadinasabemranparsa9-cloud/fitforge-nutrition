@@ -9,6 +9,12 @@ const foodSchema = new mongoose.Schema(
             index: true,
         },
 
+        dataType: {
+            type: String,
+            default: null,
+            index: true,
+        },
+
         foodClass: {
             type: String,
             default: null,
