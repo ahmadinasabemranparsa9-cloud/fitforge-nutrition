@@ -77,10 +77,6 @@ const foodSchema = new mongoose.Schema(
 );
 
 foodSchema.index({
-    description: 1,
-});
-
-foodSchema.index({
     "foodCategory.description": 1,
 });
 
