@@ -34,7 +34,7 @@ const getFoodsHandler = async (req, res, next) => {
         if (page === null || limit === null) {
             return res.status(400).json({
                 success: false,
-                message: 
+                message:
                     "Page and limit must be positive integers.",
             });
         }
@@ -42,7 +42,7 @@ const getFoodsHandler = async (req, res, next) => {
         if (limit > 100) {
             return res.status(400).json({
                 success: false,
-                message: 
+                message:
                     "Limit cannot exceed 100.",
             });
         }
@@ -53,8 +53,8 @@ const getFoodsHandler = async (req, res, next) => {
             search: req.query.search || null,
             category: req.query.category || null,
             dataType: req.query.dataType || null,
-            sort: 
-                req.query.sort || 
+            sort:
+                req.query.sort ||
                 "description-asc",
         });
 
@@ -68,8 +68,8 @@ const getFoodsHandler = async (req, res, next) => {
 };
 
 const getFoodFiltersHandler = async (
-    req, 
-    res, 
+    req,
+    res,
     next
 ) => {
     try {
@@ -85,8 +85,8 @@ const getFoodFiltersHandler = async (
 };
 
 const getFoodCountHandler = async (
-    req, 
-    res, 
+    req,
+    res,
     next
 ) => {
     try {
@@ -104,8 +104,8 @@ const getFoodCountHandler = async (
 };
 
 const getFoodByFdcIdHandler = async (
-    req, 
-    res, 
+    req,
+    res,
     next
 ) => {
     try {
