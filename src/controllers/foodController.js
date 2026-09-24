@@ -19,32 +19,43 @@ const parsePositiveInteger = (value, defaultValue) => {
     return parsedValue;
 };
 
-const getFoodsHandler = (req, res, next) => {
+const getFoodsHandler = async (req, res, next) => {
     try {
-        const page = parsePositiveInteger(req.query.page, 1);
-        const limit = parsePositiveInteger(req.query.limit, 10);
+        const page = parsePositiveInteger(
+            req.query.page,
+            1
+        );
+
+        const limit = parsePositiveInteger(
+            req.query.limit,
+            10
+        );
 
         if (page === null || limit === null) {
             return res.status(400).json({
                 success: false,
-                message: "Page and limit must be positive integers.",
+                message: 
+                    "Page and limit must be positive integers.",
             });
         }
 
         if (limit > 100) {
             return res.status(400).json({
                 success: false,
-                message: "Limit cannot exceed 100.",
+                message: 
+                    "Limit cannot exceed 100.",
             });
         }
 
-        const result = getFoods({
+        const result = await getFoods({
             page,
             limit,
             search: req.query.search || null,
             category: req.query.category || null,
             dataType: req.query.dataType || null,
-            sort: req.query.sort || "description-asc",
+            sort: 
+                req.query.sort || 
+                "description-asc",
         });
 
         return res.status(200).json({
@@ -56,9 +67,13 @@ const getFoodsHandler = (req, res, next) => {
     }
 };
 
-const getFoodFiltersHandler = (req, res, next) => {
+const getFoodFiltersHandler = async (
+    req, 
+    res, 
+    next
+) => {
     try {
-        const filters = getFoodFilters();
+        const filters = await getFoodFilters();
 
         return res.status(200).json({
             success: true,
@@ -69,9 +84,13 @@ const getFoodFiltersHandler = (req, res, next) => {
     }
 };
 
-const getFoodCountHandler = (req, res, next) => {
+const getFoodCountHandler = async (
+    req, 
+    res, 
+    next
+) => {
     try {
-        const count = getFoodCount();
+        const count = await getFoodCount();
 
         return res.status(200).json({
             success: true,
@@ -84,9 +103,15 @@ const getFoodCountHandler = (req, res, next) => {
     }
 };
 
-const getFoodByFdcIdHandler = (req, res, next) => {
+const getFoodByFdcIdHandler = async (
+    req, 
+    res, 
+    next
+) => {
     try {
-        const food = getFoodByFdcId(req.params.fdcId);
+        const food = await getFoodByFdcId(
+            req.params.fdcId
+        );
 
         if (!food) {
             return res.status(404).json({
