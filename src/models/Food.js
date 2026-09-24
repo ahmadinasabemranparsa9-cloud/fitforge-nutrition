@@ -81,7 +81,7 @@ foodSchema.index({
 });
 
 foodSchema.index({
-    "FoodCategory.description": 1,
+    "foodCategory.description": 1,
 });
 
 module.exports = mongoose.model("Food", foodSchema);
