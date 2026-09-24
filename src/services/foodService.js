@@ -1,149 +1,97 @@
-const fs = require("fs");
-const path = require("path");
+const Food = require("../models/Food");
 
-const foodsFilePath = path.join(
-    __dirname,
-    "../../data/foods.json"
-);
-
-const loadFoods = () => {
-    const fileContents = fs.readFileSync(
-        foodsFilePath,
-        "utf-8"
-    );
-
-    const parsedData = JSON.parse(fileContents);
-
-    if (!Array.isArray(parsedData.FoundationFoods)) {
-        throw new Error(
-            "Food catalog must contain a FoundationFoods array."
-        );
-    }
-
-    return parsedData.FoundationFoods.filter(
-        (food) => food !== null
-    );
-};
-
-const getFoods = ({
+const getFoods = async ({
     page = 1,
     limit = 10,
     search = null,
     category = null,
     dataType = null,
-    sort = "description-asc",
+    sort = "description.asc",
 } = {}) => {
-    let foods = loadFoods();
+    const filters = {};
 
     if (search) {
-        const normalizedSearch = search.trim().toLowerCase();
-
-        foods = foods.filter(
-            (food) =>
-                food.description && 
-                food.description
-                    .toLowerCase()
-                    .includes(normalizedSearch)
-        );
+        filters.description = {
+            $regex: search.trim(),
+            $options: "i",
+        };
     }
 
     if (category) {
-        const normalizedCategory = 
-            category.trim().toLowerCase();
-
-        foods = foods.filter(
-            (food) =>
-                food.foodCategory?.description &&
-                food.foodCategory.description
-                    .toLowerCase() === normalizedCategory
-        );
+        filters["foodCategory.description"] = {
+            $regex: `^${category.trim()}$`,
+            $options: "i",
+        };
     }
 
     if (dataType) {
-        const normalizedDataType = 
-            dataType.trim().toLowerCase();
-        
-        foods = foods.filter(
-            (food) =>
-                food.dataType &&
-                food.dataType.toLowerCase() === 
-                    normalizedDataType
-        );
+        filters.dataType = {
+            $regex: `^${dataType.trim()}$`,
+            $options: "i"
+        };
     }
 
-    foods.sort((a, b) => {
-        const comparison = a.description.localeCompare(
-            b.description,
-            undefined,
-            {
-                sensitivity: "base",
-            }
-        );
+    const sortDirection = 
+        sort === "description-desc" ? -1 : 1;
 
-        return sort === "description-desc"
-            ? -comparison
-            : comparison;
-    });
+    const skip = (page - 1) * limit;
 
-    const totalFoods = foods.length;
+    const [data, totalFoods] = await Promise.all([
+        Food.find(filters)
+            .sort({
+                description: sortDirection,
+            })
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+
+        Food.countDocuments(filters),
+    ]);
 
     const totalPages = Math.ceil(
         totalFoods / limit
     );
 
-    const skip = (page - 1) * limit;
-
-    const data = foods.slice(
-        skip,
-        skip + limit
-    );
-
     return {
-        data,
+        data, 
         pagination: {
-            page,
-            limit,
+            page, 
+            limit, 
             totalFoods,
             totalPages,
             hasNextPage: page < totalPages,
             hasPreviousPage: page > 1,
-        },
+        }, 
     };
 };
 
-const getFoodByFdcId = (fdcId) => {
-    const foods = loadFoods();
-
-    return foods.find(
-        (food) => food.fdcId === Number(fdcId)
-    );
+const getFoodByFdcId = async (fdcId) => {
+    return Food.findOne({
+        fdcId: Number(fdcId),
+    }).lean();
 };
 
-const getFoodCount = () => {
-    return loadFoods().length;
+const getFoodCount = async () => {
+    return Food.countDocuments();
 };
 
-const getFoodFilters = () => {
-    const foods = loadFoods();
-
-    const categories = new Set();
-    const dataTypes = new Set();
-
-    foods.forEach((food) => {
-        if (food.foodCategory?.description) {
-            categories.add(
-                food.foodCategory.description
-            );
-        }
-
-        if (food.dataType) {
-            dataTypes.add(food.dataType);
-        }
-    });
+const getFoodFilters = async () => {
+    const [categories, dataTypes] = 
+        await Promise.all([
+            Food.distinct(
+                "foodCategory.description"
+            ),
+            Food.distinct("dataType"),
+        ]);
 
     return {
-        categories: [...categories].sort(),
-        dataTypes: [...dataTypes].sort(),
+        categories: categories
+            .filter(Boolean)
+            .sort(),
+        
+        dataTypes: dataTypes
+            .filter(Boolean)
+            .sort(),
     };
 };
 
