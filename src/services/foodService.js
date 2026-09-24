@@ -6,7 +6,7 @@ const getFoods = async ({
     search = null,
     category = null,
     dataType = null,
-    sort = "description.asc",
+    sort = "description-asc",
 } = {}) => {
     const filters = {};
 
@@ -31,7 +31,7 @@ const getFoods = async ({
         };
     }
 
-    const sortDirection = 
+    const sortDirection =
         sort === "description-desc" ? -1 : 1;
 
     const skip = (page - 1) * limit;
@@ -53,15 +53,15 @@ const getFoods = async ({
     );
 
     return {
-        data, 
+        data,
         pagination: {
-            page, 
-            limit, 
+            page,
+            limit,
             totalFoods,
             totalPages,
             hasNextPage: page < totalPages,
             hasPreviousPage: page > 1,
-        }, 
+        },
     };
 };
 
@@ -76,7 +76,7 @@ const getFoodCount = async () => {
 };
 
 const getFoodFilters = async () => {
-    const [categories, dataTypes] = 
+    const [categories, dataTypes] =
         await Promise.all([
             Food.distinct(
                 "foodCategory.description"
@@ -88,7 +88,7 @@ const getFoodFilters = async () => {
         categories: categories
             .filter(Boolean)
             .sort(),
-        
+
         dataTypes: dataTypes
             .filter(Boolean)
             .sort(),
